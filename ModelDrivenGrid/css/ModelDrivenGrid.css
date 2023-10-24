@@ -1,0 +1,34 @@
+.SampleNamespace\.ModelDrivenGrid div.noRecords {
+    /* Make the div appear on top of the grid */
+    position: absolute;
+    width: 100%;
+    top: 80px;
+    /* Large Icon */
+    font-size: 300%; 
+}
+
+
+.ms-DetailsRow {
+    font-size: 14px;
+}
+
+.rowItem {
+    color: black !important;
+  }
+
+
+/* vertical center checkbox */
+.ms-DetailsRow-check {
+    height: 100%;
+}
+
+/* checkbox hover cursor pointer */
+.ms-DetailsRow-check:hover {
+    cursor: pointer;
+}
+
+/* underline whole row when hovering text - not working
+.ms-DetailsRow a:hover ~ * {
+    text-decoration: underline;
+}
+*/
