@@ -122,6 +122,14 @@ object]</value>
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0,
       Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ThumbnailSizePixel_Disp" xml:space="preserve">
+    <value>Thumbnail Groesse (px)</value>
+    <comment/>
+  </data>
+  <data name="ThumbnailSizePixel_Desc" xml:space="preserve">
+    <value>Die Groesse des Thumbnails in Pixeln</value>
+    <comment/>
+  </data>
   <data name="Records_Dataset_Display" xml:space="preserve">
     <value>Datensätze</value>
     <comment/>

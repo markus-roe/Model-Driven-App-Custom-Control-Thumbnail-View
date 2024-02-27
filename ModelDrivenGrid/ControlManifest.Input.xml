@@ -29,12 +29,17 @@
     description-key="Property_Desc_Key" of-type="SingleLine.Text" usage="bound" required="true" />
       -->
 
-    <!-- <property name="HighlightValue" display-name-key="HighlightValue_Disp"
-      description-key="HighlightValue_Desc" of-type="SingleLine.Text" usage="input" required="true" />
-    <property name="HighlightColor" display-name-key="HighlightColor_Disp"
+     <property name="highlightValue" display-name-key="ThumbnailSizePixel_Disp"
+      description-key="ThumbnailSizePixel_Desc" of-type="SingleLine.Text" usage="input" required="true" />
+
+      
+    <!--<property name="HighlightColor" display-name-key="HighlightColor_Disp"
       description-key="HighlightColor_Desc" of-type="SingleLine.Text" usage="input" required="true" />
     <property name="SubGridHeight" display-name-key="SubGridHeight_Disp"
       description-key="SubGridHeight_Desc" of-type="Whole.None" usage="input" required="false" /> -->
+
+    <!-- <property name="ThumbnailSize" display-name-key="ThumbnailSize_Disp"
+      description-key="ThumbnailSize_Desc" of-type="Whole.None" usage="input" required="false" /> -->
 
     <resources>
       <code path="index.ts" order="1" />

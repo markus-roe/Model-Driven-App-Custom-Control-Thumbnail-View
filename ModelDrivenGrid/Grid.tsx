@@ -12,6 +12,7 @@ import { Selection } from '@fluentui/react/lib/Selection';
 import { Link } from '@fluentui/react/lib/Link';
 import { Icon } from '@fluentui/react/lib/Icon';
 import { Text } from '@fluentui/react/lib/Text';
+import { IStyle } from '@fluentui/react';
 
 type DataSet = ComponentFramework.PropertyHelper.DataSetApi.EntityRecord & IObjectWithKey;
 
@@ -43,6 +44,7 @@ export interface GridProps {
     loadFirstPage: () => void;
     loadNextPage: () => void;
     loadPreviousPage: () => void;
+    highlightValue: string | null;
 }
 
 const onRenderDetailsHeader: IRenderFunction<IDetailsHeaderProps> = (props, defaultRender) => {
@@ -81,6 +83,7 @@ export const Grid = React.memo((props: GridProps) => {
         loadNextPage,
         loadPreviousPage,
         totalResultCount,
+        highlightValue,
     } = props;
 
     const onRenderItemColumn = (
@@ -94,7 +97,7 @@ export const Grid = React.memo((props: GridProps) => {
                 (column.data.dataType == "Image") ?
 
                     (<Link onClick={() => onNavigate(item)}>
-                        <img src={`data:image/png;base64,${item?.getFormattedValue(column.fieldName)}`} alt="Thumbnail" style={{ maxWidth: '75px' }} />
+                        <img src={`data:image/png;base64,${item?.getFormattedValue(column.fieldName)}`} alt="Thumbnail" style={{ maxWidth: `${highlightValue != "" ? highlightValue : 125}px` }} />
                     </Link>)
                     :
                     (<Link onClick={() => onNavigate(item)} className='rowItem'>
@@ -266,13 +269,41 @@ export const Grid = React.memo((props: GridProps) => {
     }, [width, height]);
 
     const onRenderRow: IDetailsListProps['onRenderRow'] = (props) => {
+
+        console.log('onRenderRow', props)
+
         const customStyles: Partial<IDetailsRowStyles> = {};
 
         if (props && props.item) {
 
-            customStyles.cell = { fontSize: '14px', display: 'flex', alignItems: 'center', height: '100%' };
 
-            return <DetailsRow {...props} styles={customStyles} className='detailsRow' />;
+            const item = props.item as DataSet | undefined;
+
+            const ausgetragen = item?.getValue('crc2a_ausgetragen_option') as 1 | null;
+
+            if (ausgetragen) {
+                
+                customStyles.root = {
+                    backgroundColor: 'lightcoral',
+                    selectors: {
+                        ':hover': {
+                        backgroundColor: '#d19999 !important',
+                        },
+                        ':focus': {
+                            backgroundColor: '#d19999 !important',
+                        },
+                    }, 
+                };
+            }
+
+            customStyles.cell = {
+                fontSize: '14px',
+                display: 'flex',
+                alignItems: 'center',
+                height: '100%'
+            };
+
+            return <DetailsRow {...props} styles={customStyles} className="detailsRow" />;
         }
 
         return null;
@@ -299,6 +330,7 @@ export const Grid = React.memo((props: GridProps) => {
                         layoutMode={DetailsListLayoutMode.fixedColumns}
                         constrainMode={ConstrainMode.unconstrained}
                         selection={selection}
+                        
                         onItemInvoked={onNavigate}
                         onRenderRow={onRenderRow}
                     ></DetailsList>
