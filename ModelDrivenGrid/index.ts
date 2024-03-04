@@ -150,7 +150,6 @@ export class ModelDrivenGrid implements ComponentFramework.StandardControl<IInpu
                 loadFirstPage: this.loadFirstPage,
                 loadNextPage: this.loadNextPage,
                 loadPreviousPage: this.loadPreviousPage,
-                highlightValue: this.context.parameters.highlightValue.raw,
             }),
             this.container,
         );

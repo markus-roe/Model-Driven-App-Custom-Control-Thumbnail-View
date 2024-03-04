@@ -6,13 +6,11 @@ import { Sticky, StickyPositionType } from '@fluentui/react/lib/Sticky';
 import { ContextualMenu, DirectionalHint, IContextualMenuProps } from '@fluentui/react/lib/ContextualMenu';
 import { ScrollablePane, ScrollbarVisibility } from '@fluentui/react/lib/ScrollablePane';
 import { Stack } from '@fluentui/react/lib/Stack';
-import { Overlay } from '@fluentui/react/lib/Overlay';
 import { IconButton } from '@fluentui/react/lib/Button';
 import { Selection } from '@fluentui/react/lib/Selection';
 import { Link } from '@fluentui/react/lib/Link';
 import { Icon } from '@fluentui/react/lib/Icon';
 import { Text } from '@fluentui/react/lib/Text';
-import { IStyle } from '@fluentui/react';
 
 type DataSet = ComponentFramework.PropertyHelper.DataSetApi.EntityRecord & IObjectWithKey;
 
@@ -44,7 +42,6 @@ export interface GridProps {
     loadFirstPage: () => void;
     loadNextPage: () => void;
     loadPreviousPage: () => void;
-    highlightValue: string | null;
 }
 
 const onRenderDetailsHeader: IRenderFunction<IDetailsHeaderProps> = (props, defaultRender) => {
@@ -83,7 +80,6 @@ export const Grid = React.memo((props: GridProps) => {
         loadNextPage,
         loadPreviousPage,
         totalResultCount,
-        highlightValue,
     } = props;
 
     const onRenderItemColumn = (
@@ -92,12 +88,11 @@ export const Grid = React.memo((props: GridProps) => {
         column?: IColumn,
     ) => {
         if (column && column.fieldName && item) {
-            // console.log(column.fieldName, column)
             return (
                 (column.data.dataType == "Image") ?
 
-                    (<Link onClick={() => onNavigate(item)}>
-                        <img src={`data:image/png;base64,${item?.getFormattedValue(column.fieldName)}`} alt="Thumbnail" style={{ maxWidth: `${highlightValue != "" ? highlightValue : 125}px` }} />
+                    (<Link style={{height: '100%'}} onClick={() => onNavigate(item)}>
+                        <img src={`data:image/png;base64,${item?.getFormattedValue(column.fieldName)}`} alt="Thumbnail" style={{ height: '100%' }} />
                     </Link>)
                     :
                     (<Link onClick={() => onNavigate(item)} className='rowItem'>
@@ -270,7 +265,11 @@ export const Grid = React.memo((props: GridProps) => {
 
     const onRenderRow: IDetailsListProps['onRenderRow'] = (props) => {
 
-        console.log('onRenderRow', props)
+        // console.log('onRenderRow', props)
+
+        const picColumn = props?.columns.find(({name}) => name === "Hauptfoto");
+
+        const picColumnWith = picColumn?.currentWidth;
 
         const customStyles: Partial<IDetailsRowStyles> = {};
 
@@ -280,10 +279,16 @@ export const Grid = React.memo((props: GridProps) => {
             const item = props.item as DataSet | undefined;
 
             const ausgetragen = item?.getValue('crc2a_ausgetragen_option') as 1 | null;
+            // const ausgetragen = item?.getValue("crf69_preis") as number > 1000;
+
+            customStyles.root = {
+                height: `${picColumnWith}px` || '125px',
+            }
 
             if (ausgetragen) {
                 
                 customStyles.root = {
+                    ...customStyles.root,
                     backgroundColor: 'lightcoral',
                     selectors: {
                         ':hover': {
@@ -310,6 +315,7 @@ export const Grid = React.memo((props: GridProps) => {
     };
 
     return (
+        <>
         <Stack verticalFill grow style={rootContainerStyle}>
             <Stack.Item grow style={{ position: 'relative', backgroundColor: 'white', zIndex: 0 }}>
                 {!itemsLoading && !isComponentLoading && items && items.length === 0 && (
@@ -330,7 +336,6 @@ export const Grid = React.memo((props: GridProps) => {
                         layoutMode={DetailsListLayoutMode.fixedColumns}
                         constrainMode={ConstrainMode.unconstrained}
                         selection={selection}
-                        
                         onItemInvoked={onNavigate}
                         onRenderRow={onRenderRow}
                     ></DetailsList>
@@ -378,6 +383,7 @@ export const Grid = React.memo((props: GridProps) => {
                 </Stack>
             </Stack.Item>
         </Stack>
+        </>
     );
 });
 
