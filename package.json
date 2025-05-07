@@ -8,7 +8,7 @@
         "lint": "pcf-scripts lint",
         "lint:fix": "pcf-scripts lint fix",
         "rebuild": "pcf-scripts rebuild",
-        "start": "pcf-scripts start",
+        "start": "pcf-scripts start --watchedFiles src/**/*.{ts,tsx,json}",
         "refreshTypes": "pcf-scripts refreshTypes",
         "deploy": "pac pcf push --publisher-prefix crc2a"
     },

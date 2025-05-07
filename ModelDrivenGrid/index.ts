@@ -7,6 +7,8 @@ import { Grid } from './Grid';
 // Register icons - but ignore warnings if they have been already registered by Power Apps
 initializeIcons(undefined, { disableWarnings: true });
 
+const VERSION = '1.0.4'; // Simplified loading state handling
+
 export class ModelDrivenGrid implements ComponentFramework.StandardControl<IInputs, IOutputs> {
     notifyOutputChanged: () => void;
     container: HTMLDivElement;
@@ -89,12 +91,15 @@ export class ModelDrivenGrid implements ComponentFramework.StandardControl<IInpu
         state: ComponentFramework.Dictionary,
         container: HTMLDivElement,
     ): void {
+        console.log(`[GRID] Version ${VERSION} initializing...`);
         this.notifyOutputChanged = notifyOutputChanged;
         this.container = container;
         this.context = context;
         this.context.mode.trackContainerResize(true);
         this.resources = this.context.resources;
         this.isTestHarness = document.getElementById('control-dimensions') !== null;
+
+        console.log("[GRID] initializing grid...")
 
         this.context.parameters.records.loading = true;
     }
@@ -111,6 +116,7 @@ export class ModelDrivenGrid implements ComponentFramework.StandardControl<IInpu
         // In MDAs, the initial population of the dataset does not provide updatedProperties
         const initialLoad = !this.sortedRecordsIds && dataset.sortedRecordIds;
         const datasetChanged = context.updatedProperties.indexOf('dataset') > -1 || initialLoad;
+        const pagingChanged = context.updatedProperties.indexOf('paging') > -1;
         const resetPaging =
             datasetChanged && !dataset.loading && !dataset.paging.hasPreviousPage && this.currentPage !== 1;
 
@@ -118,9 +124,15 @@ export class ModelDrivenGrid implements ComponentFramework.StandardControl<IInpu
             this.currentPage = 1;
         }
 
-        if (resetPaging || datasetChanged || this.isTestHarness || !this.records) {
+        // Always update records and paging state when loading is complete
+        if (resetPaging || datasetChanged || pagingChanged || this.isTestHarness || !this.records || !dataset.loading) {
             this.records = dataset.records;
             this.sortedRecordsIds = dataset.sortedRecordIds;
+            
+            // Force loading to false if we have records
+            if (dataset.sortedRecordIds?.length > 0) {
+                dataset.loading = false;
+            }
         }
 
 
@@ -157,7 +169,7 @@ export class ModelDrivenGrid implements ComponentFramework.StandardControl<IInpu
 
     /**
      * It is called by the framework prior to a control receiving new data.
-     * @returns an object based on nomenclature defined in manifest, expecting object[s] for property marked as “bound” or “output”
+     * @returns an object based on nomenclature defined in manifest, expecting object[s] for property marked as "bound" or "output"
      */
     public getOutputs(): IOutputs {
         return {} as IOutputs;

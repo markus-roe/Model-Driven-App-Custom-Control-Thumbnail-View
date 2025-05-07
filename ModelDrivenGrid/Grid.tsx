@@ -131,7 +131,10 @@ export const Grid = React.memo((props: GridProps) => {
     }, [setContextualMenuProps]);
 
     const items: (DataSet | undefined)[] = React.useMemo(() => {
-        setIsLoading(false);
+        // If we have records, we should not be in loading state
+        if (Object.keys(records).length > 0) {
+            setIsLoading(false);
+        }
 
         const sortedRecords: (DataSet | undefined)[] = sortedRecordIds.map((id) => {
             const record = records[id];
@@ -139,7 +142,7 @@ export const Grid = React.memo((props: GridProps) => {
         });
 
         return sortedRecords;
-    }, [records, sortedRecordIds, hasNextPage, setIsLoading]);
+    }, [records, sortedRecordIds]);
 
     const getContextualMenuProps = React.useCallback(
         (column: IColumn, ev: React.MouseEvent<HTMLElement>): IContextualMenuProps => {
@@ -218,19 +221,22 @@ export const Grid = React.memo((props: GridProps) => {
     );
 
     const onNextPage = React.useCallback(() => {
+        console.log("[GRID] Loading next page:", { currentPage });
         setIsLoading(true);
         loadNextPage();
-    }, [loadNextPage, setIsLoading]);
+    }, [loadNextPage, currentPage]);
 
     const onPreviousPage = React.useCallback(() => {
+        console.log("[GRID] Loading previous page:", { currentPage });
         setIsLoading(true);
         loadPreviousPage();
-    }, [loadPreviousPage, setIsLoading]);
+    }, [loadPreviousPage, currentPage]);
 
     const onFirstPage = React.useCallback(() => {
+        console.log("[GRID] Loading first page");
         setIsLoading(true);
         loadFirstPage();
-    }, [loadFirstPage, setIsLoading]);
+    }, [loadFirstPage]);
 
     const gridColumns = React.useMemo(() => {
         return columns
