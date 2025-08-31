@@ -7,8 +7,6 @@ import { Grid } from './Grid';
 // Register icons - but ignore warnings if they have been already registered by Power Apps
 initializeIcons(undefined, { disableWarnings: true });
 
-const VERSION = '1.0.4'; // Simplified loading state handling
-
 export class ModelDrivenGrid implements ComponentFramework.StandardControl<IInputs, IOutputs> {
     notifyOutputChanged: () => void;
     container: HTMLDivElement;
@@ -23,6 +21,37 @@ export class ModelDrivenGrid implements ComponentFramework.StandardControl<IInpu
 
     setSelectedRecords = (ids: string[]): void => {
         this.context.parameters.records.setSelectedRecordIds(ids);
+    };
+
+    createGermanResourceFallback = (): void => {
+        // German label mappings
+        const germanLabels: { [key: string]: string } = {
+            'ThumbnailSizePixel_Disp': 'Thumbnail Größe (px)',
+            'ThumbnailSizePixel_Desc': 'Die Größe des Thumbnails in Pixeln',
+            'Records_Dataset_Display': 'Datensätze',
+            'FilteredRecordCount_Disp': 'Gefilterte Datensatzanzahl',
+            'FilteredRecordCount_Desc': 'Anzahl der Datensätze nach dem Filtern',
+            'HighlightValue_Disp': 'Hervorhebungswert',
+            'HighlightValue_Desc': 'Der Wert, der angibt, dass eine Zeile hervorgehoben werden soll',
+            'HighlightColor_Disp': 'Hervorhebungsfarbe',
+            'HighlightColor_Desc': 'Die Farbe zum Hervorheben einer Zeile',
+            'HighlightIndicator_Disp': 'Hervorhebungsindikator-Feld',
+            'HighlightIndicator_Desc': 'Legen Sie den Namen des Feldes fest, das mit dem Hervorhebungswert verglichen werden soll',
+            'Label_Grid_Footer': 'Seite {0}',
+            'Label_SortAZ': 'A bis Z',
+            'Label_SortZA': 'Z bis A',
+            'Label_DoesNotContainData': 'Enthält keine Daten',
+            'Label_Grid_Footer_RecordCount': '{0} Datensätze ({1} ausgewählt)',
+            'SubGridHeight_Disp': 'Untergitter-Höhe (leer lassen, wenn nicht zum Formular hinzugefügt)',
+            'SubGridHeight_Desc': 'Die Höhe in Pixel, um das Gitter darzustellen, wenn es auf einem Formular-Untergitter konfiguriert ist. Leer lassen, wenn nicht zum Formular hinzugefügt.',
+            'Label_NoRecords': 'Keine Datensätze gefunden'
+        };
+
+        // Override the getString method to always return German labels
+        const originalGetString = this.resources.getString.bind(this.resources);
+        this.resources.getString = (key: string): string => {
+            return germanLabels[key] || originalGetString(key);
+        };
     };
 
     onNavigate = (item?: ComponentFramework.PropertyHelper.DataSetApi.EntityRecord): void => {
@@ -91,7 +120,6 @@ export class ModelDrivenGrid implements ComponentFramework.StandardControl<IInpu
         state: ComponentFramework.Dictionary,
         container: HTMLDivElement,
     ): void {
-        console.log(`[GRID] Version ${VERSION} initializing...`);
         this.notifyOutputChanged = notifyOutputChanged;
         this.container = container;
         this.context = context;
@@ -99,7 +127,8 @@ export class ModelDrivenGrid implements ComponentFramework.StandardControl<IInpu
         this.resources = this.context.resources;
         this.isTestHarness = document.getElementById('control-dimensions') !== null;
 
-        console.log("[GRID] initializing grid...")
+        // Create a custom getString method that always returns German labels
+        this.createGermanResourceFallback();
 
         this.context.parameters.records.loading = true;
     }

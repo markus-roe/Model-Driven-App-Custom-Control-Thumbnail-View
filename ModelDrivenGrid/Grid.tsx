@@ -59,6 +59,16 @@ const onRenderDetailsHeader: IRenderFunction<IDetailsHeaderProps> = (props, defa
 
 
 export const Grid = React.memo((props: GridProps) => {
+    // German labels map - always use German labels regardless of environment language
+    const germanLabels = {
+        'Label_SortAZ': 'A bis Z',
+        'Label_SortZA': 'Z bis A',
+        'Label_DoesNotContainData': 'Enthält keine Daten',
+        'Label_NoRecords': 'Keine Datensätze gefunden',
+        'Label_Grid_Footer_RecordCount': '{0} Datensätze ({1} ausgewählt)',
+        'Label_Grid_Footer': 'Seite {0}'
+    };
+
     const {
         records,
         sortedRecordIds,
@@ -149,7 +159,7 @@ export const Grid = React.memo((props: GridProps) => {
             const menuItems = [
                 {
                     key: 'aToZ',
-                    name: resources.getString('Label_SortAZ'),
+                    name: germanLabels['Label_SortAZ'],
                     iconProps: { iconName: 'SortUp' },
                     canCheck: true,
                     checked: column.isSorted && !column.isSortedDescending,
@@ -164,7 +174,7 @@ export const Grid = React.memo((props: GridProps) => {
                 },
                 {
                     key: 'zToA',
-                    name: resources.getString('Label_SortZA'),
+                    name: germanLabels['Label_SortZA'],
                     iconProps: { iconName: 'SortDown' },
                     canCheck: true,
                     checked: column.isSorted && column.isSortedDescending,
@@ -179,7 +189,7 @@ export const Grid = React.memo((props: GridProps) => {
                 },
                 {
                     key: 'filter',
-                    name: resources.getString('Label_DoesNotContainData'),
+                    name: germanLabels['Label_DoesNotContainData'],
                     iconProps: { iconName: 'Filter' },
                     canCheck: true,
                     checked: column.isFiltered,
@@ -221,19 +231,16 @@ export const Grid = React.memo((props: GridProps) => {
     );
 
     const onNextPage = React.useCallback(() => {
-        console.log("[GRID] Loading next page:", { currentPage });
         setIsLoading(true);
         loadNextPage();
     }, [loadNextPage, currentPage]);
 
     const onPreviousPage = React.useCallback(() => {
-        console.log("[GRID] Loading previous page:", { currentPage });
         setIsLoading(true);
         loadPreviousPage();
     }, [loadPreviousPage, currentPage]);
 
     const onFirstPage = React.useCallback(() => {
-        console.log("[GRID] Loading first page");
         setIsLoading(true);
         loadFirstPage();
     }, [loadFirstPage]);
@@ -242,10 +249,14 @@ export const Grid = React.memo((props: GridProps) => {
         return columns
             .filter((col) => !col.isHidden && col.order >= 0)
             .sort((a, b) => a.order - b.order)
-            .map((col) => {
+            .map((col, index) => {
                 const sortOn = sorting && sorting.find((s) => s.name === col.name);
                 const filtered =
                     filtering && filtering.conditions && filtering.conditions.find((f) => f.attributeName == col.name);
+                
+                // Disable sorting and filtering for the first column
+                const isFirstColumn = index === 0;
+                
                 return {
                     key: col.name,
                     name: col.displayName,
@@ -254,10 +265,13 @@ export const Grid = React.memo((props: GridProps) => {
                     isSortedDescending: sortOn?.sortDirection === 1,
                     isResizable: true,
                     isFiltered: filtered != null,
-                    data: col,
+                    data: {
+                        ...col,
+                        disableSorting: isFirstColumn || col.disableSorting
+                    },
                     minWidth: col.visualSizeFactor > 100 ? col.visualSizeFactor : 100,
-                    onColumnContextMenu: onColumnContextMenu,
-                    onColumnClick: onColumnClick,
+                    onColumnContextMenu: isFirstColumn ? undefined : onColumnContextMenu,
+                    onColumnClick: isFirstColumn ? undefined : onColumnClick,
                 } as IColumn;
             });
     }, [columns, sorting, onColumnContextMenu, onColumnClick]);
@@ -327,7 +341,7 @@ export const Grid = React.memo((props: GridProps) => {
                 {!itemsLoading && !isComponentLoading && items && items.length === 0 && (
                     <Stack grow horizontalAlign="center" className={'noRecords'}>
                         <Icon iconName="PageList"></Icon>
-                        <Text variant="large">{resources.getString('Label_NoRecords')}</Text>
+                        <Text variant="large">{germanLabels['Label_NoRecords']}</Text>
                     </Stack>
                 )}
                 <ScrollablePane scrollbarVisibility={ScrollbarVisibility.auto}>
@@ -353,7 +367,7 @@ export const Grid = React.memo((props: GridProps) => {
                 <Stack horizontal style={{ width: '100%', paddingLeft: 8, paddingRight: 8 }}>
                     <Stack.Item align="center">
                         {stringFormat(
-                            resources.getString('Label_Grid_Footer_RecordCount'),
+                            germanLabels['Label_Grid_Footer_RecordCount'],
                             totalResultCount === -1 ? '5000+' : totalResultCount.toString(),
                             selection.getSelectedCount().toString(),
                         )}
@@ -375,7 +389,7 @@ export const Grid = React.memo((props: GridProps) => {
                     />
                     <Stack.Item align="center">
                         {stringFormat(
-                            resources.getString('Label_Grid_Footer'),
+                            germanLabels['Label_Grid_Footer'],
                             currentPage.toString(),
                             selection.getSelectedCount().toString(),
                         )}
